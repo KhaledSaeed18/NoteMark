@@ -1,8 +1,7 @@
-import { ElectronAPI } from '@electron-toolkit/preload'
-
 declare global {
   interface Window {
-    electron: ElectronAPI
-    api: unknown
+    // electron: ElectronAPI
+    context: {
+      // Expose the electronAPI object to the renderer process
   }
 }
