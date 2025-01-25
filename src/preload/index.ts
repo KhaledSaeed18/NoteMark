@@ -6,7 +6,7 @@ if (!process.contextIsolated) {
 
 try {
   contextBridge.exposeInMainWorld('context', {
-    // Expose the electronAPI object to the renderer process
+    locale: navigator.language
   })
 } catch (error) {
   console.error(error)
