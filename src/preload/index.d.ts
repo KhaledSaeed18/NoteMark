@@ -3,5 +3,6 @@ declare global {
     // electron: ElectronAPI
     context: {
       // Expose the electronAPI object to the renderer process
+    }
   }
 }
