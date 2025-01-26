@@ -21,14 +21,29 @@ export const useMarkdownEditor = () => {
         },
         autoSavingTime,
         {
-            leading: false,
-            trailing: true
+            leading: false, // don't save the note immediately
+            trailing: true // save the note after the user stops typing
         }
     )
+
+    // handle blur event to save the note when the editor loses focus
+    const handleBlur = async () => {
+        if (!selectedNote) return
+
+        handleAutoSaving.cancel()
+
+        const content = editorRef.current?.getMarkdown()
+
+        if (content != null) {
+            await saveNote(content)
+        }
+    }
+
 
     return {
         selectedNote,
         editorRef,
-        handleAutoSaving
+        handleAutoSaving,
+        handleBlur
     }
 }

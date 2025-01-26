@@ -9,7 +9,7 @@ import { useMarkdownEditor } from '@renderer/hooks/useMarkdownEditor'
 
 export const MarkdownEditor = () => {
 
-    const { editorRef, selectedNote, handleAutoSaving } = useMarkdownEditor()
+    const { editorRef, selectedNote, handleAutoSaving, handleBlur } = useMarkdownEditor()
 
     if (!selectedNote) return null
 
@@ -19,6 +19,7 @@ export const MarkdownEditor = () => {
             ref={editorRef}
             markdown={selectedNote.content}
             onChange={handleAutoSaving}
+            onBlur={handleBlur}
             plugins={[
                 headingsPlugin(),
                 listsPlugin(),
