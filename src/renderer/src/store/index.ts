@@ -77,3 +77,29 @@ export const deleteNoteAtom = atom(null, async (get, set) => {
 
     set(selectedNoteIndexAtom, null)
 })
+
+export const saveNoteAtom = atom(null, async (get, set, newContent: NoteContent) => {
+    const notes = get(notesAtom)
+    const selectedNote = get(selectedNoteAtom)
+
+    if (!selectedNote || !notes) return
+
+    // write the new content to the file using the context bridge
+    await window.context.writeNote(selectedNote.title, newContent)
+
+    // update the notes atom
+    set(
+        notesAtom,
+        notes.map((note) => {
+            // select the note to update 
+            if (note.title === selectedNote.title) {
+                return {
+                    ...note,
+                    lastEditTime: Date.now()
+                }
+            }
+
+            return note
+        })
+    )
+})
