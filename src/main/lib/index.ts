@@ -1,12 +1,14 @@
 import { appDirectoryName, fileEncoding } from "@shared/constants"
 import { NoteInfo } from "@shared/models"
-import { GetNotes, ReadNote, WriteNote } from "@shared/types"
+import { CreateNote, GetNotes, ReadNote, WriteNote } from "@shared/types"
+import { dialog } from "electron"
 import { ensureDir, readdir, readFile, stat, writeFile } from "fs-extra"
 import { homedir } from "os"
+import path from "path"
 
 // get the root directory of the app
 export const getRootDir = () => {
-    return `${homedir()}/${appDirectoryName}`
+    return path.join(homedir(), appDirectoryName)
 }
 
 export const getNotes: GetNotes = async () => {
@@ -55,4 +57,47 @@ export const writeNote: WriteNote = async (filename, content) => {
 
     // write the content to the file and return the promise
     return writeFile(`${rootDir}/${filename}.md`, content, { encoding: fileEncoding })
+}
+
+
+// create a new note file
+export const createNote: CreateNote = async () => {
+    const rootDir = getRootDir()
+
+    // ensure the root directory exists, if not create it
+    await ensureDir(rootDir)
+
+    // show the save dialog to get the file path to save the new note file
+    const { filePath, canceled } = await dialog.showSaveDialog({
+        title: 'New note', // dialog title
+        defaultPath: path.join(rootDir, 'Untitled.md'), // default file path to save the note
+        buttonLabel: 'Create', // button label for the save button
+        properties: ['showOverwriteConfirmation'],
+        showsTagField: false,
+        filters: [{ name: 'Markdown', extensions: ['md'] }] // file extension filter, only markdown files are allowed
+    })
+
+    // if the dialog is canceled or no file path is selected return false
+    if (canceled || !filePath) {
+        return false
+    }
+
+    // get the filename and parent directory of the file path
+    const { name: filename, dir: parentDir } = path.parse(filePath)
+
+    // show an error dialog if the parent directory is not the root directory and return false
+    if (path.normalize(parentDir) !== path.normalize(rootDir)) {
+        await dialog.showMessageBox({
+            type: 'error',
+            title: 'Creation failed',
+            message: `All notes must be saved under ${rootDir}.\nAvoid using other directories!`
+        })
+
+        return false
+    }
+
+    // create the file with the filename and return the filename
+    await writeFile(filePath, '')
+
+    return filename
 }

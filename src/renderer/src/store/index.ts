@@ -50,7 +50,7 @@ export const createEmptyNoteAtom = atom(null, async (get, set) => {
 
     if (!notes) return
 
-    const title = `Note ${notes.length + 1}`
+    const title = await window.context.createNote()
 
     if (!title) return
 
@@ -63,6 +63,7 @@ export const createEmptyNoteAtom = atom(null, async (get, set) => {
 
     set(selectedNoteIndexAtom, 0)
 })
+
 
 export const deleteNoteAtom = atom(null, async (get, set) => {
     const notes = get(notesAtom)
