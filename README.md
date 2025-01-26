@@ -1,6 +1,8 @@
 # NoteMark 📝
 
-[<img src="resources/demo.png" alt="NoteMark Logo" width="65%" height="500" style="display: block; margin: 0 auto;">](.)
+<p align="center">
+  <img src="resources/demo.png" alt="NoteMark Logo" width="60%" height="400">
+</p>
 
 A modern, minimalist Markdown note-taking application built with Electron, React, and TypeScript. NoteMark provides a seamless writing experience with real-time preview and automatic saving.
 
