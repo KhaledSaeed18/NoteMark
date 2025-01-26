@@ -1,4 +1,4 @@
-import { GetNotes } from '@shared/types'
+import { GetNotes, ReadNote } from '@shared/types'
 
 declare global {
   interface Window {
@@ -6,7 +6,8 @@ declare global {
     context: {
       // Expose the electronAPI object to the renderer process
       locale: string,
-      getNotes: GetNotes
+      getNotes: GetNotes,
+      readNote: ReadNote
     }
   }
 }

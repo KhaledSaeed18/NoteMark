@@ -10,13 +10,16 @@ const loadNotes = async () => {
     return notes.sort((a, b) => b.lastEditTime - a.lastEditTime)
 }
 
+// create an atom to store the notes and load them asynchronously
 const notesAtomAsync = atom<NoteInfo[] | Promise<NoteInfo[]>>(loadNotes())
 
+// export the notes atom with the resolved value using the unwrap utility
 export const notesAtom = unwrap(notesAtomAsync, (prev) => prev)
 
+// create an atom to store the selected note index and initialize it with null
 export const selectedNoteIndexAtom = atom<number | null>(null)
 
-export const selectedNoteAtom = atom((get) => {
+const selectedNoteAtomAsync = atom(async (get) => {
     const selectedNoteIndex = get(selectedNoteIndexAtom)
     const notes = get(notesAtom)
 
@@ -24,11 +27,23 @@ export const selectedNoteAtom = atom((get) => {
 
     const selectedNote = notes[selectedNoteIndex]
 
+    const noteContent = await window.context.readNote(selectedNote.title)
+
     return {
         ...selectedNote,
-        content: `# Hello from ${selectedNoteIndex}`
+        content: noteContent
     }
 })
+
+export const selectedNoteAtom = unwrap(
+    selectedNoteAtomAsync,
+    (prev) =>
+        prev ?? {
+            title: '',
+            content: '',
+            lastEditTime: Date.now()
+        }
+)
 
 export const createEmptyNoteAtom = atom(null, async (get, set) => {
     const notes = get(notesAtom)
