@@ -1,5 +1,6 @@
 import { ActionButtonsRow, Content, FloatingNoteTitle, MarkdownEditor, NotePreviewList, RootLayout, Sidebar } from "@/components"
 import { useRef } from "react"
+import { Button } from "./components/ui/button"
 
 function App() {
 
