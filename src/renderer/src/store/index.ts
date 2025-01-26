@@ -1,8 +1,18 @@
-import { atom } from "jotai";
-import { notesMock } from "./mocks";
-import { NoteInfo } from "@shared/models";
+import { NoteContent, NoteInfo } from '@shared/models'
+import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 
-export const notesAtom = atom<NoteInfo[]>(notesMock)
+const loadNotes = async () => {
+    // get the notes from the main process using the context bridge
+    const notes = await window.context.getNotes()
+
+    // sort them by most recently edited
+    return notes.sort((a, b) => b.lastEditTime - a.lastEditTime)
+}
+
+const notesAtomAsync = atom<NoteInfo[] | Promise<NoteInfo[]>>(loadNotes())
+
+export const notesAtom = unwrap(notesAtomAsync, (prev) => prev)
 
 export const selectedNoteIndexAtom = atom<number | null>(null)
 
@@ -10,7 +20,7 @@ export const selectedNoteAtom = atom((get) => {
     const selectedNoteIndex = get(selectedNoteIndexAtom)
     const notes = get(notesAtom)
 
-    if (selectedNoteIndex == null) return null
+    if (selectedNoteIndex == null || !notes) return null
 
     const selectedNote = notes[selectedNoteIndex]
 
