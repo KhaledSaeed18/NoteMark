@@ -1,0 +1,31 @@
+name: Release Electron App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Yarn
+        uses: borales/actions-yarn@v2.0.0
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build Electron app
+        run: yarn build
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./dist/**/*
+
+      - name: Upload release to GitHub
+        run: yarn electron-builder --win
