@@ -24,6 +24,13 @@ jobs:
       - name: Build Electron app
         run: yarn build
 
+      - name: Create a Git tag
+        id: create_tag
+        run: |
+          VERSION=$(jq -r .version < package.json)
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         with:
