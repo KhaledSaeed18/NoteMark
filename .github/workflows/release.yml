@@ -12,8 +12,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Yarn
-        uses: borales/actions-yarn@v2.0.0
+      - name: Set up Node.js (with Yarn)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install
