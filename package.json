@@ -43,7 +43,7 @@
     "clsx": "^2.1.1",
     "electron": "^31.0.2",
     "electron-builder": "^24.13.3",
-    "electron-vite": "^2.3.0",
+    "electron-vite": "^3.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.3",
     "lodash": "^4.17.21",
@@ -54,6 +54,6 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "3.4.17",
     "typescript": "^5.5.2",
-    "vite": "^5.3.1"
+    "vite": "^6.1.1"
   }
 }
