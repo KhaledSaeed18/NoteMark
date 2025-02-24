@@ -27,7 +27,7 @@ jobs:
       - name: Create a Git tag
         id: create_tag
         run: |
-          VERSION=$(jq -r .version < package.json)
+          $VERSION = (Get-Content package.json | ConvertFrom-Json).version
           git tag "v$VERSION"
           git push origin "v$VERSION"
 
