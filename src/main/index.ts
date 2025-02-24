@@ -4,8 +4,10 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getNotes, readNote, writeNote, createNote, deleteNote } from './lib'
 import { CreateNote, DeleteNote, GetNotes, ReadNote, WriteNote } from '@shared/types'
+import log from 'electron-log'
+import { autoUpdater } from 'electron-updater'
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -43,6 +45,45 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  return mainWindow
+}
+
+function setupAutoUpdater(mainWindow: BrowserWindow) {
+  log.transports.file.level = 'info'
+  autoUpdater.logger = log
+
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...')
+    mainWindow.webContents.send('update-checking')
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available:', info)
+    mainWindow.webContents.send('update-available', info)
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    log.info('Update not available.')
+    mainWindow.webContents.send('update-not-available')
+  })
+
+  autoUpdater.on('error', (err) => {
+    log.error('Update error:', err)
+    mainWindow.webContents.send('update-error', err.message)
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    log.info(`Download progress: ${progress.percent}%`)
+    mainWindow.webContents.send('update-download-progress', progress)
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    log.info('Update downloaded. Ready to install.')
+    mainWindow.webContents.send('update-downloaded')
+  })
+
+  // Start checking for updates
+  autoUpdater.checkForUpdatesAndNotify()
 }
 
 // This method will be called when Electron has finished
@@ -68,7 +109,8 @@ app.whenReady().then(() => {
   ipcMain.handle('createNote', (_, ...args: Parameters<CreateNote>) => createNote(...args))
   ipcMain.handle('deleteNote', (_, ...args: Parameters<DeleteNote>) => deleteNote(...args))
 
-  createWindow()
+  const mainWindow = createWindow()
+  setupAutoUpdater(mainWindow)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
