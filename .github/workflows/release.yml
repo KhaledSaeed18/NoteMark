@@ -26,38 +26,48 @@ jobs:
       - name: Build Electron app
         run: yarn build
 
-      - name: Create a Git tag
-        id: create_tag
+      - name: Get Version
+        id: get_version
         run: |
           $VERSION = (Get-Content package.json | ConvertFrom-Json).version
           echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+          echo "Version is $VERSION"
+
+      - name: Create or Use Existing Tag
+        id: tag
+        run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           # Check if tag exists
-          $tagExists = git ls-remote --tags origin "refs/tags/v$VERSION"
+          $tagExists = git ls-remote --tags origin "refs/tags/v$env:VERSION"
           
           if ($tagExists) {
-            echo "Tag v$VERSION already exists. Skipping tag creation."
-            echo "TAG_EXISTS=true" >> $env:GITHUB_ENV
+            echo "Tag v$env:VERSION already exists. Using existing tag."
           } else {
-            git tag "v$VERSION"
-            git push origin "v$VERSION"
-            echo "TAG_EXISTS=false" >> $env:GITHUB_ENV
+            git tag "v$env:VERSION"
+            git push origin "v$env:VERSION"
+            echo "Created new tag v$env:VERSION"
           }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Build release artifacts
+        run: yarn electron-builder --win
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
-        if: env.TAG_EXISTS == 'false'
         with:
           files: |
-            ./dist/**/*
+            ./dist/**/*.exe
           tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          body: |
+            Release version ${{ env.VERSION }}
+            
+            ## What's Changed
+            * Automated release from GitHub Actions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release to GitHub
-        if: env.TAG_EXISTS == 'false'
-        run: yarn electron-builder --win
