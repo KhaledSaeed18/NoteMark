@@ -30,8 +30,12 @@ jobs:
           $VERSION = (Get-Content package.json | ConvertFrom-Json).version
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "v$VERSION"
-          git push origin "v$VERSION"
+          if (git ls-remote --tags origin "refs/tags/v$VERSION" -eq $null) {
+            git tag "v$VERSION"
+            git push origin "v$VERSION"
+          } else {
+            echo "Tag v$VERSION already exists. Skipping tag creation."
+          }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
