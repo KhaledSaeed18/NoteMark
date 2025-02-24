@@ -31,7 +31,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git tag "v$VERSION"
-          git push https://github-actions:${{ secrets.TOKEN }}@github.com/KhaledSaeed18/NoteMark.git "v$VERSION"
+          git push origin "v$VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
